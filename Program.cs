@@ -8,6 +8,8 @@ using Telegram.Bot;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
+using System.ServiceModel.Syndication;
+using System.Xml;
 using System.Text.RegularExpressions;
 using Telegram.Bot.Types.ReplyMarkups;
 using TGBot;
@@ -49,6 +51,7 @@ class Program
 
     private static async Task UpdateHandler(ITelegramBotClient bot, Update update, CancellationToken token)
     {
+
         String? messageText = null;
         var userId = update.Message.From.Id;
         long chatId = 0;
@@ -65,7 +68,7 @@ class Program
                 chatId = callbackQuery.Message.Chat.Id;
                 break;
         }
-        Console.WriteLine(update.Message.Chat.Username);
+        Console.WriteLine(update.Message.Chat.Username, messageText);
         if (messageText.StartsWith("/") || messageText == "Perplexity-mode")
         {
             switch (messageText)

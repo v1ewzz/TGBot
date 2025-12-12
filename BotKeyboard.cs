@@ -9,7 +9,7 @@ namespace TGBot
         {
             return new ReplyKeyboardMarkup(
             [
-                ["Perplexity-mode", "Напоминания"],
+                ["Perplexity-mode", "Новости"],
                 ["О боте"]
             ])
             {

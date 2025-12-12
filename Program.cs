@@ -1,16 +1,7 @@
-using System;
-using System.Net.Http;
-using System.Text;
-using System.Text.Json;
-using System.Threading;
-using System.Threading.Tasks;
 using Telegram.Bot;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
-using System.ServiceModel.Syndication;
-using System.Xml;
-using System.Text.RegularExpressions;
 using Telegram.Bot.Types.ReplyMarkups;
 using TGBot;
 
@@ -30,7 +21,7 @@ class Program
     private static ReplyKeyboardMarkup backToMainMenuButton = BotKeyboard.BackToMainMenu();
     private static ReplyKeyboardMarkup messageToCreatorMenu = BotKeyboard.MessageToCreatorMenu();
     private static readonly UserRequestsService _requestsService = new UserRequestsService();
-
+    private static readonly NewsService _newsService = new NewsService();
 
 
     static async Task Main()
@@ -55,20 +46,14 @@ class Program
         String? messageText = null;
         var userId = update.Message.From.Id;
         long chatId = 0;
-        switch (update.Type)
+        if (update.Type == UpdateType.Message)
         {
-            case UpdateType.Message:
-                var message = update.Message;
-                messageText = message?.Text;
-                chatId = message.Chat.Id;
-                break;
-            case UpdateType.CallbackQuery:
-                var callbackQuery = update.CallbackQuery;
-                messageText = callbackQuery?.Data;
-                chatId = callbackQuery.Message.Chat.Id;
-                break;
+            var message = update.Message;
+            messageText = message?.Text;
+            chatId = message.Chat.Id;
         }
-        Console.WriteLine(update.Message.Chat.Username, messageText);
+        else return;
+        Console.WriteLine(update.Message.Chat.Username);
         if (messageText.StartsWith("/") || messageText == "Perplexity-mode")
         {
             switch (messageText)
@@ -117,6 +102,9 @@ class Program
                 case "Оставить сообщение создателю":
                     isMessageToCreatorModeActivated = true;
                     await bot.SendMessage(chatId, "Напишите свое сообщение ниже:");
+                    break;
+                case "Новости":
+                    await _newsService.ShowNews(botClient, chatId, token);
                     break;
             }
             if (await _requestsService.CanMakeRequestAsync(userId))

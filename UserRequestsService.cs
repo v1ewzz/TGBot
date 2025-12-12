@@ -46,46 +46,45 @@ namespace TGBot
         //}
 
         public async Task<bool> CanMakeRequestAsync(long telegramId)
-{
-    using var context = CreateContext();
-
-    var user = await context.UserRequests
-        .FirstOrDefaultAsync(u => u.user_id == telegramId);
-
-    if (user == null)
-        return true;
-
-    return user.count_of_requests < 3;
-}
-
-public async Task<bool> IncrementRequestAsync(long telegramId)
-{
-    using var context = CreateContext();
-
-    var user = await context.UserRequests
-        .FirstOrDefaultAsync(u => u.user_id == telegramId);
-
-    if (user == null)
-    {
-        user = new UserRequest
         {
-            user_id = telegramId,
-            count_of_requests = 1
-        };
-        context.UserRequests.Add(user);
-    }
-    else if (user.count_of_requests < 3)
-    {
-        user.count_of_requests++;
-    }
-    else
-    {
-        return false; 
-    }
+            using var context = CreateContext();
 
-    await context.SaveChangesAsync();
-    return true;
-}
+            var user = await context.UserRequests
+                .FirstOrDefaultAsync(u => u.user_id == telegramId);
 
+            if (user == null)
+                return true;
+
+            return user.count_of_requests < 3;
+        }
+
+        public async Task<bool> IncrementRequestAsync(long telegramId)
+        {
+            using var context = CreateContext();
+
+            var user = await context.UserRequests
+                .FirstOrDefaultAsync(u => u.user_id == telegramId);
+
+            if (user == null)
+            {
+                user = new UserRequest
+                {
+                    user_id = telegramId,
+                    count_of_requests = 1
+                };
+                context.UserRequests.Add(user);
+            }
+            else if (user.count_of_requests < 3)
+            {
+                user.count_of_requests++;
+            }
+            else
+            {
+                return false; 
+            }
+
+            await context.SaveChangesAsync();
+            return true;
+        }
     }
 }

@@ -17,4 +17,8 @@
     <PackageReference Include="Telegram.Bot" Version="22.7.5" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="StartMessage.txt;AboutBotMessage.txt" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
 </Project>

@@ -1,0 +1,49 @@
+using Telegram.Bot;
+using Telegram.Bot.Types.Enums;
+using Telegram.Bot.Types.ReplyMarkups;
+using TGBot.Text;
+
+namespace TGBot.Bot;
+
+public sealed class MessageSender
+{
+    private const int MaxMessageLength = 4000;
+
+    private readonly ReplyKeyboardMarkup _backToMainMenu;
+
+    public MessageSender(ReplyKeyboardMarkup backToMainMenu)
+    {
+        _backToMainMenu = backToMainMenu;
+    }
+
+    public Task SendAsync(ITelegramBotClient bot, long chatId, string text,
+        CancellationToken cancellationToken, ReplyKeyboardMarkup? replyMarkup = null) =>
+        bot.SendMessage(chatId, text, cancellationToken: cancellationToken, replyMarkup: replyMarkup);
+
+    public Task SendLongAsync(ITelegramBotClient bot, long chatId, string text, CancellationToken cancellationToken)
+    {
+        IEnumerable<string> parts = SplitByLength(text, MaxMessageLength);
+        return SendAllAsync(bot, chatId, parts, cancellationToken);
+    }
+
+    private async Task SendAllAsync(ITelegramBotClient bot, long chatId, IEnumerable<string> parts,
+        CancellationToken cancellationToken)
+    {
+        foreach (string part in parts)
+        {
+            await bot.SendMessage(chatId, part,
+                parseMode: ParseMode.MarkdownV2,
+                cancellationToken: cancellationToken,
+                replyMarkup: _backToMainMenu);
+        }
+    }
+
+    private static IEnumerable<string> SplitByLength(string text, int maxLength)
+    {
+        for (int i = 0; i < text.Length; i += maxLength)
+        {
+            int length = Math.Min(maxLength, text.Length - i);
+            yield return text.Substring(i, length);
+        }
+    }
+}

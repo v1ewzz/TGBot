@@ -353,6 +353,11 @@ ASALocalRun/
 # Local environment files (secrets)
 .env
 
+# SQLite database
+*.db
+*.db-shm
+*.db-wal
+
 # BeatPulse healthcheck temp database
 healthchecksdb
 

@@ -24,7 +24,7 @@ Telegram-бот, который совмещает функции **ИИ-пом�
 | **Telegram.Bot** 22.x | Работа с Bot API (polling) |
 | **Groq API** | Бесплатное инференс-ядро ИИ (OpenAI-совместимый формат) |
 | **Entity Framework Core** 8 | Доступ к БД |
-| **SQL Server / SQL Express** | Хранение счётчиков запросов |
+| **SQLite** | Хранение счётчиков запросов (файл `tgbot.db`, ноль настройки) |
 | **System.ServiceModel.Syndication** | Парсинг RSS-новостей (Habr) |
 
 ---
@@ -58,7 +58,6 @@ TGBot/
 ### Требования
 
 - [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) или новее
-- SQL Server (локальный **SQL Express** подойдёт)
 - Учётная запись [Groq](https://console.groq.com) и API-ключ
 - Telegram-бот, созданный через [@BotFather](https://t.me/BotFather)
 
@@ -89,7 +88,7 @@ cp .env.example .env
 |---|---|---|
 | `TELEGRAM_BOT_API_KEY` | ✅ | Токен бота от @BotFather |
 | `GROQ_API_KEY` | ✅ | API-ключ Groq (`console.groq.com/keys`) |
-| `DB_CONNECTION_STRING` | ❌ | Строка подключения к SQL Server. Если не задана — используется локальный `SQLEXPRESS` |
+| `DB_CONNECTION_STRING` | ❌ | Строка подключения к SQLite. Если не задана — используется файл `tgbot.db` в папке запуска |
 | `CREATOR_CHAT_ID` | ❌ | Telegram `chat_id` владельца (куда пересылаются отзывы). По умолчанию `0` |
 
 > 💡 Файл `.env` **не коммитится** в git — он добавлен в `.gitignore`. Все ключи читаются только из окружения, в коде и репозитории секретов нет.
@@ -99,11 +98,11 @@ cp .env.example .env
 ```dotenv
 TELEGRAM_BOT_API_KEY=123456:ABC-DEF...
 GROQ_API_KEY=gsk_xxxxxxxxxxxxxxxx
-DB_CONNECTION_STRING=Server=localhost;Database=TGbot;User Id=sa;Password=yourpass;TrustServerCertificate=true;
+DB_CONNECTION_STRING=Data Source=tgbot.db
 CREATOR_CHAT_ID=123456789
 ```
 
-> Таблица `user_requests` и уникальный индекс на `user_id` создаются **автоматически** при первом запуске — миграции вручную не нужны.
+> Таблица `user_requests` и уникальный индекс на `user_id` создаются **автоматически** при первом запуске (`EnsureCreated`) — миграции вручную не нужны. База — это просто файл `tgbot.db`, который можно удалить для сброса лимитов.
 
 ---
 
@@ -131,10 +130,10 @@ sudo apt install dotnet-sdk-8.0
 dotnet publish -c Release -o out
 
 # запустить
-cd out && ASPNETCORE_ENVIRONMENT=Production dotnet TGBot.dll
+cd out && dotnet TGBot.dll
 ```
 
-> Для Linux-сервера используй `User Id`/`Password` в `DB_CONNECTION_STRING` — Windows-аутентификация (`Trusted_Connection=true`) там не работает.
+> На Linux/Codespaces не нужно ничего настраивать для БД — SQLite создаст файл `tgbot.db` рядом с приложением.
 
 ---
 

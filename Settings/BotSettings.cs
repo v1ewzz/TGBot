@@ -7,7 +7,7 @@ public sealed record BotSettings(
     long CreatorChatId)
 {
     private const string DefaultConnectionString =
-        "Server=LAPTOP-O96BRCVR\\SQLEXPRESS;Database=TGbot;Trusted_Connection=true;TrustServerCertificate=true;";
+        "Data Source=tgbot.db";
     private const long DefaultCreatorChatId = 0;
 
     public static BotSettings FromEnvironment()

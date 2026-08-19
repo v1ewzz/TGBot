@@ -22,4 +22,11 @@ public sealed class BotDbContext : DbContext
     public BotDbContext(DbContextOptions<BotDbContext> options) : base(options)
     {
     }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<UserRequest>()
+            .HasIndex(u => u.UserId)
+            .IsUnique();
+    }
 }

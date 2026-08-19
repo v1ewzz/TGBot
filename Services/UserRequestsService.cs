@@ -17,13 +17,13 @@ public sealed class UserRequestsService : IRequestLimiter
 
     public async Task EnsureInitializedAsync(CancellationToken cancellationToken = default)
     {
-        using BotDbContext context = CreateContext();
-        await context.Database.ExecuteSqlRawAsync(InitializeSql, cancellationToken);
+        await using BotDbContext context = CreateContext();
+        await context.Database.EnsureCreatedAsync(cancellationToken);
     }
 
     public async Task<bool> CanMakeRequestAsync(long userId, CancellationToken cancellationToken = default)
     {
-        using BotDbContext context = CreateContext();
+        await using BotDbContext context = CreateContext();
 
         UserRequest? user = await context.UserRequests
             .FirstOrDefaultAsync(u => u.UserId == userId, cancellationToken);
@@ -33,7 +33,7 @@ public sealed class UserRequestsService : IRequestLimiter
 
     public async Task<bool> TryConsumeRequestAsync(long userId, CancellationToken cancellationToken = default)
     {
-        using BotDbContext context = CreateContext();
+        await using BotDbContext context = CreateContext();
 
         int rows = await context.Database.ExecuteSqlInterpolatedAsync(
             $@"UPDATE user_requests
@@ -63,28 +63,8 @@ public sealed class UserRequestsService : IRequestLimiter
     private BotDbContext CreateContext()
     {
         var options = new DbContextOptionsBuilder<BotDbContext>()
-            .UseSqlServer(_connectionString)
+            .UseSqlite(_connectionString)
             .Options;
         return new BotDbContext(options);
     }
-
-    private const string InitializeSql = """
-        IF OBJECT_ID('dbo.user_requests', 'U') IS NULL
-        BEGIN
-            CREATE TABLE dbo.user_requests (
-                Id INT IDENTITY PRIMARY KEY,
-                user_id BIGINT NOT NULL,
-                count_of_requests INT NOT NULL DEFAULT 0
-            );
-        END;
-
-        IF NOT EXISTS (
-            SELECT 1 FROM sys.indexes
-            WHERE name = 'UX_user_requests_user_id'
-              AND object_id = OBJECT_ID('dbo.user_requests')
-        )
-        BEGIN
-            CREATE UNIQUE INDEX UX_user_requests_user_id ON dbo.user_requests(user_id);
-        END;
-        """;
 }

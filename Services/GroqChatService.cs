@@ -9,6 +9,14 @@ public sealed class GroqChatService : IChatCompletionService
 {
     private const string Endpoint = "https://api.groq.com/openai/v1/chat/completions";
     private const string Model = "openai/gpt-oss-120b";
+    private const int MaxCompletionTokens = 4096;
+
+    private const string SystemPrompt =
+        "Ты - ИИ-помощник в Telegram-боте. Отвечай на русском языке, если вопрос не на другом языке. " +
+        "Формат ответа: простые короткие абзацы, списки через символ '•' в начале строки, " +
+        "жирный текст выделяй **двойными звёздочками**. " +
+        "НЕ используй markdown-таблицы, заголовки с '#', горизонтальные линии '---' и код-блоки — " +
+        "Telegram их не отображает. Ответ должен быть информативным, но без лишней воды.";
 
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -32,10 +40,11 @@ public sealed class GroqChatService : IChatCompletionService
             Model = Model,
             Messages =
             [
+                new ChatMessage { Role = "system", Content = SystemPrompt },
                 new ChatMessage { Role = "user", Content = prompt }
             ],
-            Temperature = 1,
-            MaxCompletionTokens = 2048,
+            Temperature = 0.7,
+            MaxCompletionTokens = MaxCompletionTokens,
             TopP = 1,
             Stream = false,
             ReasoningEffort = "medium"

@@ -32,7 +32,7 @@ public sealed class MessageSender
         foreach (string part in parts)
         {
             await bot.SendMessage(chatId, part,
-                parseMode: ParseMode.MarkdownV2,
+                parseMode: ParseMode.Html,
                 cancellationToken: cancellationToken,
                 replyMarkup: _backToMainMenu);
         }
@@ -40,10 +40,17 @@ public sealed class MessageSender
 
     private static IEnumerable<string> SplitByLength(string text, int maxLength)
     {
-        for (int i = 0; i < text.Length; i += maxLength)
+        while (text.Length > maxLength)
         {
-            int length = Math.Min(maxLength, text.Length - i);
-            yield return text.Substring(i, length);
+            int cut = text.LastIndexOf('\n', maxLength - 1);
+            if (cut <= 0)
+                cut = maxLength;
+
+            yield return text[..cut].Trim();
+            text = text[cut..].TrimStart('\n');
         }
+
+        if (text.Length > 0)
+            yield return text;
     }
 }

@@ -8,7 +8,6 @@ public sealed record BotSettings(
 {
     private const string DefaultConnectionString =
         "Data Source=tgbot.db";
-    private const long DefaultCreatorChatId = 0;
 
     public static BotSettings FromEnvironment()
     {
@@ -16,7 +15,7 @@ public sealed record BotSettings(
             Require("TELEGRAM_BOT_API_KEY"),
             Require("GROQ_API_KEY"),
             GetOr("DB_CONNECTION_STRING", DefaultConnectionString),
-            GetLongOr("CREATOR_CHAT_ID", DefaultCreatorChatId));
+            RequireLong("CREATOR_CHAT_ID"));
     }
 
     private static string Require(string name) =>
@@ -24,8 +23,9 @@ public sealed record BotSettings(
 
     private static string GetOr(string name, string fallback) => Get(name) ?? fallback;
 
-    private static long GetLongOr(string name, long fallback) =>
-        long.TryParse(Get(name), out long value) ? value : fallback;
+    private static long RequireLong(string name) =>
+        long.TryParse(Get(name), out long value) ? value
+            : throw new InvalidOperationException($"Не задана переменная окружения {name}");
 
     private static string? Get(string name) => Environment.GetEnvironmentVariable(name);
 }

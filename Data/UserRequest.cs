@@ -13,6 +13,9 @@ public sealed class UserRequest
 
     [Column("count_of_requests")]
     public int CountOfRequests { get; set; }
+
+    [Column("last_request_date")]
+    public string? LastRequestDate { get; set; }
 }
 
 public sealed class BotDbContext : DbContext

@@ -89,7 +89,7 @@ cp .env.example .env
 | `TELEGRAM_BOT_API_KEY` | ✅ | Токен бота от @BotFather |
 | `GROQ_API_KEY` | ✅ | API-ключ Groq (`console.groq.com/keys`) |
 | `DB_CONNECTION_STRING` | ❌ | Строка подключения к SQLite. Если не задана — используется файл `tgbot.db` в папке запуска |
-| `CREATOR_CHAT_ID` | ❌ | Telegram `chat_id` владельца (куда пересылаются отзывы). По умолчанию `0` |
+| `CREATOR_CHAT_ID` | ✅ | Telegram `chat_id` владельца (куда пересылаются отзывы) |
 
 > 💡 Файл `.env` **не коммитится** в git — он добавлен в `.gitignore`. Все ключи читаются только из окружения, в коде и репозитории секретов нет.
 

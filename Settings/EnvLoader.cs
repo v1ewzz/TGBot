@@ -4,11 +4,11 @@ public static class EnvLoader
 {
     public static void Load(string path = ".env")
     {
-        string fullPath = Path.Combine(AppContext.BaseDirectory, path);
-        if (!File.Exists(fullPath))
+        string? foundPath = FindFile(path);
+        if (foundPath is null)
             return;
 
-        foreach (string line in File.ReadAllLines(fullPath)
+        foreach (string line in File.ReadAllLines(foundPath)
                      .Select(TrimLine)
                      .Where(l => l.Length > 0 && !l.StartsWith('#')))
         {
@@ -22,6 +22,18 @@ public static class EnvLoader
             if (key.Length > 0 && Environment.GetEnvironmentVariable(key) is null)
                 Environment.SetEnvironmentVariable(key, value);
         }
+    }
+
+    private static string? FindFile(string fileName)
+    {
+        string[] candidates =
+        [
+            Path.Combine(AppContext.BaseDirectory, fileName),
+            Path.Combine(Directory.GetCurrentDirectory(), fileName),
+            Path.Combine(AppContext.BaseDirectory, "..", "..", "..", fileName)
+        ];
+
+        return candidates.FirstOrDefault(File.Exists);
     }
 
     private static string TrimLine(string raw) => raw.Trim();

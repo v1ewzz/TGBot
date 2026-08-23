@@ -8,7 +8,7 @@ namespace TGBot.Services;
 public sealed class GroqChatService : IChatCompletionService
 {
     private const string Endpoint = "https://api.groq.com/openai/v1/chat/completions";
-    private const string Model = "openai/gpt-oss-120b";
+    private const string Model = "qwen/qwen3.6-27b";
     private const int MaxCompletionTokens = 4096;
 
     private const string SystemPrompt =
@@ -47,7 +47,7 @@ public sealed class GroqChatService : IChatCompletionService
             MaxCompletionTokens = MaxCompletionTokens,
             TopP = 1,
             Stream = false,
-            ReasoningEffort = "medium"
+            ReasoningEffort = "default"
         };
 
         using var request = new HttpRequestMessage(HttpMethod.Post, Endpoint)

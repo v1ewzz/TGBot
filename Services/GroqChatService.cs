@@ -1,6 +1,7 @@
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Text.RegularExpressions;
 using TGBot.Abstractions;
 
 namespace TGBot.Services;
@@ -47,7 +48,7 @@ public sealed class GroqChatService : IChatCompletionService
             MaxCompletionTokens = MaxCompletionTokens,
             TopP = 1,
             Stream = false,
-            ReasoningEffort = "default"
+            ReasoningEffort = "none"
         };
 
         using var request = new HttpRequestMessage(HttpMethod.Post, Endpoint)
@@ -71,7 +72,7 @@ public sealed class GroqChatService : IChatCompletionService
                 .GetProperty("message")
                 .GetProperty("content")
                 .GetString();
-            return content ?? "No answer";
+            return content is null ? "No answer" : StripThinking(content);
         }
         catch
         {
@@ -94,5 +95,14 @@ public sealed class GroqChatService : IChatCompletionService
     {
         public string Role { get; init; } = null!;
         public string Content { get; init; } = null!;
+    }
+
+    private static readonly Regex ThinkRegex =
+        new(@"<think>.*?</think>", RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.IgnoreCase);
+
+    private static string StripThinking(string text)
+    {
+        string stripped = ThinkRegex.Replace(text, string.Empty);
+        return stripped.Trim();
     }
 }
